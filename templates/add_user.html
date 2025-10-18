@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- ИСПРАВИТЬ: Добавить корректные пути к CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>{% block title %}Мое приложение{% endblock %}</title>
+
+    <!--  ДОБАВИТЬ: Базовые стили на случай проблем с загрузкой CSS -->
+    <style>
+        .fallback-styles {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body class="fallback-styles">
+    <!-- ДОБАВИТЬ: Сообщение о загрузке -->
+    <div id="loading" class="loading" style="display: none;">
+        Загрузка стилей...
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-logo">МойСайт</a>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('index') }}">Главная</a></li>
+                <li><a href="{{ url_for('about') }}">О нас</a></li>
+                <li><a href="{{ url_for('users') }}">Пользователи</a></li>
+                <li><a href="{{ url_for('add_user') }}">Добавить пользователя</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Мое приложение. Все права защищены.</p>
+    </footer>
+
+    <!-- ИСПРАВИТЬ: Добавить проверку загрузки CSS -->
+    <script>
+        // Проверка загрузки CSS
+        document.addEventListener('DOMContentLoaded', function() {
+            var stylesheets = document.styleSheets;
+            var cssLoaded = false;
+
+            for (var i = 0; i < stylesheets.length; i++) {
+                try {
+                    if (stylesheets[i].cssRules.length > 0) {
+                        cssLoaded = true;
+                        break;
+                    }
+                } catch(e) {
+                    // Игнорируем ошибки CORS
+                }
+            }
+
+            if (!cssLoaded) {
+                document.getElementById('loading').style.display = 'block';
+                console.log('CSS не загружен, проверьте путь к файлам');
+            }
+        });
+    </script>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
+
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Добавить пользователя</h1>
+
+    <form method="POST" class="user-form">
+        <div class="form-group">
+            <label for="name">Имя пользователя:</label>
+            <input type="text" id="name" name="name" required
+                   placeholder="Введите имя" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required
+                   placeholder="Введите email" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-success">Добавить пользователя</button>
+        <a href="{{ url_for('users') }}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}
